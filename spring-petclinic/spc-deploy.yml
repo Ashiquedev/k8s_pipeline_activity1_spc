@@ -22,6 +22,7 @@ spec:
     spec:
       containers:
       - name: spc
+        image: ashikrepo.jfrog.io/spc/spring_p_c:41
         ports:
         - containerPort: 8080
 
