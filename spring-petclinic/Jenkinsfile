@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+    stages {
+        stage ('cloning the repo') {
+            steps {
+                git changelog: false, poll: false, url: 'https://github.com/Ashiquedev/k8s_pipeline_activity1_spc.git'
+            }
+        }
+         stage ('building the docker image') {
+            steps {
+                    sh "cd spring-petclinic && docker image build -t spring_p_c:$BUILD_NUMBER ."                    
+                }                 
+            }
+        stage ('push into jfrog artifactory') {
+            environment {
+               IMAGE_ID = sh(script: '(sudo docker images --filter=reference=spring_p_c:$BUILD_NUMBER --format "{{.ID}}")', , returnStdout: true).trim()
+           }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'jfrog_login', passwordVariable: 'jfrog_pswd', usernameVariable: 'jfrog_username')]) {
+                   sh "docker login -u $jfrog_username ashikrepo.jfrog.io -p $jfrog_pswd" 
+                   sh "docker tag $IMAGE_ID ashikrepo.jfrog.io/spc/spring_p_c:$BUILD_NUMBER "
+                   sh "docker push ashikrepo.jfrog.io/spc/spring_p_c:$BUILD_NUMBER "   
+                   }
+                }
+            }
+
+         stage ('installing kubectl') {
+            steps{
+            sh 'chmod 770 spring-petclinic/kubectl.sh'
+            sh 'sh spring-petclinic/kubectl.sh'
+            }
+         }
+       
+        stage ('kubernets deploy') {
+            steps {
+                withKubeConfig(credentialsId: 'k8s_kubeadm_config', namespace: 'kubernetes_task') {
+                 sh "cd spring-petclinic && kubectl apply -f spc-deploy.yml"
+                }
+            }
+        }    
+    }
+}
+ 
+
+
+
