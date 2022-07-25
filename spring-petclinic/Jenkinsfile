@@ -33,7 +33,7 @@ pipeline {
        
         stage ('kubernets deploy') {
             steps {
-                withKubeConfig(credentialsId: 'k8s_kubeadm_config' {
+                withKubeConfig(credentialsId: 'k8s_kubeadm_config') {
                  sh "cd spring-petclinic && kubectl apply -f spc-deploy.yml"
                 }
             }
