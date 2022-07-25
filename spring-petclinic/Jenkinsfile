@@ -34,8 +34,8 @@ pipeline {
         stage ('kubernets deploy') {
             steps {
                 withKubeConfig(credentialsId: 'k8s_kubeadm_config') {
+                 def image_id = "ashikrepo.jfrog.io/spc/spring_p_c" + ":$BUILD_NUMBER"
                  sh "cd spring-petclinic && kubectl apply -f spc-deploy.yml"
-                 sh 'kubectl set image deployments/spc-deployment spc=ashikrepo.jfrog.io/spc/spring_p_c:$BUILD_NUMBER'
                 }
             }
         }    
