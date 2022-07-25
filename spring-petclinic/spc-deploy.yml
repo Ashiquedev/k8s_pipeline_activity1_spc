@@ -22,9 +22,12 @@ spec:
     spec:
       containers:
       - name: spc
-        image: ashikrepo.jfrog.io/spc/spring_p_c:$BUILD_NUMBER
         ports:
         - containerPort: 8080
+
+
+
+
 
 ---
 kind: Service
