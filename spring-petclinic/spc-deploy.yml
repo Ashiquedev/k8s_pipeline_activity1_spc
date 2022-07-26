@@ -22,13 +22,21 @@ spec:
     spec:
       containers:
       - name: spc
-        image: "{{ image_id }}"
+        image: ashikrepo.jfrog.io/spc/spring_p_c:latest
         ports:
         - containerPort: 8080
+      imagePullSecrets:
+        - name:  jfrogpull
 
 
-
-
+---
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJhc2hpa3JlcG8uamZyb2cuaW8iOnsidXNlcm5hbWUiOiJhc2hpay5zaGVrMTZAZ21haWwuY29tIiwicGFzc3dvcmQiOiJBc2hpa0AxNDMxIiwiZW1haWwiOiJhc2hpay5zaGVrMTZAZ21haWwuY29tIiwiYXV0aCI6IllYTm9hV3N1YzJobGF6RTJRR2R0WVdsc0xtTnZiVHBCYzJocGEwQXhORE14In19fQ==
+kind: Secret
+metadata:
+  name: jfrogpull
+type: kubernetes.io/dockerconfigjson
 
 ---
 kind: Service

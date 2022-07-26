@@ -23,22 +23,35 @@ pipeline {
                    }
                 }
             }
-
          stage ('installing kubectl') {
-            steps{
+            steps {
             sh 'chmod 770 spring-petclinic/kubectl.sh'
             sh 'sh spring-petclinic/kubectl.sh'
+            }
+         }
+         stage ('downloading the image'){
+            steps {
+               withCredentials([usernamePassword(credentialsId: 'jfrog_login', passwordVariable: 'jfrog_pswd', usernameVariable: 'jfrog_username')]) {
+                 sh "docker pull ashikrepo.jfrog.io/spc/spring_p_c:$BUILD_NUMBER"
+                 sh "docker image tag ashikrepo.jfrog.io/spc/spring_p_c:$BUILD_NUMBER ashikrepo.jfrog.io/spc/spring_p_c:latest"
+               } 
             }
          }
        
         stage ('kubernets deploy') {
             steps {
                 withKubeConfig(credentialsId: 'k8s_kubeadm_config') {
-                 def image_id = "ashikrepo.jfrog.io/spc/spring_p_c" + ":$BUILD_NUMBER"
                  sh "cd spring-petclinic && kubectl apply -f spc-deploy.yml"
                 }
             }
-        }    
+        }
+        stage ('change the tag of image'){
+            steps {
+               withCredentials([usernamePassword(credentialsId: 'jfrog_login', passwordVariable: 'jfrog_pswd', usernameVariable: 'jfrog_username')]) {
+                 sh "docker image tag ashikrepo.jfrog.io/spc/spring_p_c:latest ashikrepo.jfrog.io/spc/spring_p_c:$BUILD_NUMBER"
+               } 
+            }
+         }    
     }
 }
  
